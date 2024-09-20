@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: WebClient_Factory
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+provider:
+  baseUrl: https://jsonplaceholder.typicode.com
+  userName: ----
+  token: ----
+
+circuitBreaker:
+  timeoutDuration: 60000
+  failureCount: 3
