@@ -2,11 +2,9 @@ name: CICD
 
 on:
   push:
-    branches:
-      - [ deploy-to-ec2 ]
+    branches: [ deploy-to-ec2 ]
   pull_request:
-    branches:
-      - [ deploy-to-ec2 ]
+    branches: [ deploy-to-ec2 ]
 
 jobs:
   build:
