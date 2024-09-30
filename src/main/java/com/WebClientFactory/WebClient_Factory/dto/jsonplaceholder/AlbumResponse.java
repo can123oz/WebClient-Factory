@@ -1,4 +1,4 @@
 package com.WebClientFactory.WebClient_Factory.dto.jsonplaceholder;
 
-public record AlbumResponse(String userId, String id, String title) {
+public record AlbumResponse(Integer userId, Integer id, String title) {
 }

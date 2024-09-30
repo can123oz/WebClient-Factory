@@ -8,7 +8,6 @@ springdoc:
 
 provider:
   baseUrl: https://jsonplaceholder.typicode.com
-  userName: ----
   token: ----
 
 circuitBreaker:

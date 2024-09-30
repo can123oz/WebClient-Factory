@@ -16,18 +16,14 @@ public class DefaultWebClient<Response> implements WebClient<Response> {
     private static final Logger logger = LoggerFactory.getLogger(DefaultWebClient.class);
     private org.springframework.web.reactive.function.client.WebClient webClient;
     private final CircuitBreaker circuitBreaker;
-
-    @Value("${provider.baseUrl}")
-    private String baseUrl;
+    private final String baseUrl;
 
     @Value("${provider.token}")
     private String token;
 
-    @Value("${provider.userName}")
-    private String userName;
-
-    public DefaultWebClient(CircuitBreaker circuitBreaker) {
+    public DefaultWebClient(CircuitBreaker circuitBreaker, String baseUrl) {
         this.circuitBreaker = circuitBreaker;
+        this.baseUrl = baseUrl;
     }
 
     @PostConstruct
@@ -40,11 +36,8 @@ public class DefaultWebClient<Response> implements WebClient<Response> {
 
     @Override
     public Mono<Response> get(String url, Class<Response> responseType) {
-
-        if (circuitBreaker.isServiceDown(url)) {
-            logger.error("Service is down no need to send more request at the moment. Url : {}", url);
-            return Mono.error(new CircuitBreakerException("Service is down no need to send more request at the moment."));
-        }
+        Mono<Response> error = getResponseMono(url);
+        if (error != null) return error;
 
         return webClient.get()
                 .uri(url)
@@ -59,13 +52,39 @@ public class DefaultWebClient<Response> implements WebClient<Response> {
                 .doOnSuccess(response -> circuitBreaker.successRequest(url));
     }
 
+    @Override
+    public Mono<Response> post(String url, Object body, Class<Response> responseType) {
+        Mono<Response> error = getResponseMono(url);
+        if (error != null) return error;
+
+        return webClient.post()
+                .uri(url)
+                .bodyValue(body)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
+                        Mono.error(new ClientException("Client error : " + clientResponse.statusCode())))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
+                    circuitBreaker.failedRequest(url);
+                    return Mono.error(new CircuitBreakerException("Server error : " + clientResponse.statusCode()));
+                })
+                .bodyToMono(responseType)
+                .doOnSuccess(response -> circuitBreaker.successRequest(url));
+    }
+
+    private Mono<Response> getResponseMono(String url) {
+        if (circuitBreaker.isServiceDown(url)) {
+            logger.error("Service is down no need to send more request at the moment. Url : {}", url);
+            return Mono.error(new CircuitBreakerException("Service is down no need to send more request at the moment."));
+        }
+        return null;
+    }
+
     private org.springframework.web.reactive.function.client.WebClient getWebClient() {
         return org.springframework.web.reactive.function.client.WebClient
                 .builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader("Authorization", "Bearer " + token)
-                .defaultHeader("User-Agent", userName)
                 .build();
     }
 }

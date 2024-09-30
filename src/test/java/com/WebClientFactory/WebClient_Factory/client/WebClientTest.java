@@ -31,12 +31,13 @@ public class WebClientTest {
 
     private DefaultWebClient<String> webClient;
     private MockWebServer mockWebServer;
+    private String fakeUrl = "test-url";
 
 
     @BeforeEach
     public void setUp() throws IOException, NoSuchFieldException, IllegalAccessException {
         MockitoAnnotations.openMocks(this);
-        webClient = new DefaultWebClient(circuitBreaker);
+        webClient = new DefaultWebClient(circuitBreaker, fakeUrl);
         mockWebServer = new MockWebServer();
         mockWebServer.start();
         // Sets the mock WebClient to our webClient
@@ -149,6 +150,32 @@ public class WebClientTest {
                 .setResponseCode(500));
 
         Mono<String> responseMono = webClient.get(url, String.class);
+
+        //Then
+        StepVerifier.create(responseMono)
+                .expectErrorMatches(throwable -> {
+                    if (!(throwable instanceof CircuitBreakerException)) return false;
+                    String errorMessage = throwable.getMessage();
+                    return errorMessage.contains("Server error");
+                })
+                .verify();
+
+        verify(circuitBreaker, times(1)).isServiceDown(anyString());
+    }
+
+    @Test
+    void shouldPostMethodReturnsMono5XXError() {
+        //Given
+        String url = "test-url";
+
+        //When
+        given(circuitBreaker.isServiceDown(url)).willReturn(false);
+
+        // Simulate a successful 200 response
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(500));
+
+        Mono<String> responseMono = webClient.post(url, Object.class, String.class);
 
         //Then
         StepVerifier.create(responseMono)
