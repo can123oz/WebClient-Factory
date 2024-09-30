@@ -33,11 +33,11 @@ jobs:
     runs-on: [aws-ec2-sandbox]
     steps:
       - name: Pull the latest image from DockerHub
-        run: docker pull ${{ secrets.USERNAME }}/webclient-factory:latest
+        run: docker pull canozdemir/webclient-factory:latest
       - name: Delete old container
         run: docker rm -f webclient-factory-container
       - name: Run the container
-        run: docker run -d -p 8080:8080 --name webclient-factory-container ${{ secrets.USERNAME }}/webclient-factory
+        run: docker run -d -p 8080:8080 --name webclient-factory-container canozdemir/webclient-factory
 
 
 
