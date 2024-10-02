@@ -27,19 +27,19 @@ public class TestController {
         return ResponseEntity.ok("pong " + count);
     }
 
-    @GetMapping("/albums-test")
+    @GetMapping("/album")
     public ResponseEntity<AlbumResponse> webClientTest(int number) {
         String url = "/albums/" + number;
         return ResponseEntity.ok(albumWebClient.get(url, AlbumResponse.class).block());
     }
 
-    @PostMapping("/posts-test")
+    @PostMapping("/post")
     public ResponseEntity<PostResponse> postTest(@RequestBody PostRequest postRequest) {
         PostResponse result = postWebClient.post("/posts", postRequest, PostResponse.class).block();
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/posts-test")
+    @GetMapping("/post")
     public ResponseEntity<PostResponse> postTest(int number) {
         PostResponse result = postWebClient.get("/posts/" + number, PostResponse.class).block();
         return ResponseEntity.ok(result);
