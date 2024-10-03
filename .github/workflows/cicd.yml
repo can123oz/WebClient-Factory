@@ -35,9 +35,9 @@ jobs:
       - name: Login to DockerHub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
-        run: docker build -t  ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha::7 }} .
+        run: docker build -t  ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }} .
       - name: Push docker image
-        run: docker push ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha::7 }}
+        run: docker push ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }}
   integration-test:
     name: Integration Test
     needs: build
@@ -58,6 +58,6 @@ jobs:
     runs-on: [aws-ec2-sandbox]
     steps:
       - name: Pull the latest image from DockerHub
-        run: docker pull ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha::7 }}
+        run: docker pull ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }}
       - name: Run the container
-        run: docker run -d -p 8080:8080 --name webclient-factory-container-:${{ github.sha::7 }} ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha::7 }}
+        run: docker run -d -p 8080:8080 --name webclient-factory-container-:${{ github.sha }} ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }}
