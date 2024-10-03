@@ -16,6 +16,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Unit Tests with Maven
         run: mvn test -Punit-test
   build:
@@ -30,14 +37,23 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Set SHORT_SHA environment variable
+        run: echo "SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)" >> $GITHUB_ENV
       - name: Build with Maven
         run: mvn clean install -DskipTests
       - name: Login to DockerHub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
-        run: docker build -t  ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }} .
+        run: docker build -t  ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }} .
       - name: Push docker image
-        run: docker push ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }}
+        run: docker push ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
   integration-test:
     name: Integration Test
     needs: build
@@ -57,7 +73,9 @@ jobs:
     needs: integration-test
     runs-on: [aws-ec2-sandbox]
     steps:
+      - name: Set SHORT_SHA environment variable
+        run: echo "SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)" >> $GITHUB_ENV
       - name: Pull the latest image from DockerHub
-        run: docker pull ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }}
+        run: docker pull ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
       - name: Run the container
-        run: docker run -d -p 8080:8080 --name webclient-factory-container-:${{ github.sha }} ${{ secrets.USERNAME }}/webclient-factory:${{ github.sha }}
+        run: docker run -d -p 8080:8080 --name webclient-factory ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
