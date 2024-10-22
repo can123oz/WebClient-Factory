@@ -29,11 +29,12 @@ Before you begin, ensure you have met the following requirements:
 To install the project, follow these steps:
 
 1. Navigate to the project directory: `cd project-directory`
-2. First, Build the Docker Image. Run the following command to build your Docker image:
+2. Run the following command : `mvn clean install -DskipTests`
+3. Then, Build the Docker Image. Run the following command to build your Docker image:
    `docker build -t <your-image-name> .`
-3. Once the image is built, run the Docker Container.
+4. Once the image is built, run the Docker Container.
 `docker run -d -p 8080:8080 --name webclient-factory <your-image-name>`
-4. Open a web browser and navigate to: [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
+5. Open a web browser and navigate to: [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
 
 ### Configuration
 The application relies on certain properties that can be configured in your `application.yml` file:
