@@ -64,5 +64,5 @@ jobs:
       - name: Pull the latest image from DockerHub
         run: docker pull ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
       - name: Run the container
-        run: docker run -e "SPRING_PROFILES_ACTIVE=prod" -d -p 8080:8080 webclient-${{ env.SHORT_SHA }} ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
+        run: docker run -e "SPRING_PROFILES_ACTIVE=prod" -d -p 8080:8080 --name webclient-${{ env.SHORT_SHA }} ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
         #run: docker run -d -p 8080:8080 --name webclient-${{ env.SHORT_SHA }} ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
