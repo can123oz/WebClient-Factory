@@ -57,11 +57,12 @@ jobs:
   deploy:
     name: Deploy
     needs: integration-test
-    runs-on: [aws-ec2-sandbox]
+    runs-on: [ aws-ec2-sandbox ]
     steps:
       - name: Set SHORT_SHA environment variable
         run: echo "SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)" >> $GITHUB_ENV
       - name: Pull the latest image from DockerHub
         run: docker pull ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
       - name: Run the container
-        run: docker run -d -p 8080:8080 --name webclient-${{ env.SHORT_SHA }} ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
+        run: docker run -e "SPRING_PROFILES_ACTIVE=prod" -d -p 8080:8080 webclient-${{ env.SHORT_SHA }} ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}
+        #run: docker run -d -p 8080:8080 --name webclient-${{ env.SHORT_SHA }} ${{ secrets.USERNAME }}/webclient-factory:${{ env.SHORT_SHA }}

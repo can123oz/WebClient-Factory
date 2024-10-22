@@ -13,3 +13,6 @@ provider:
 circuitBreaker:
   timeoutDuration: 60000
   failureCount: 3
+
+integration:
+  enabled: false

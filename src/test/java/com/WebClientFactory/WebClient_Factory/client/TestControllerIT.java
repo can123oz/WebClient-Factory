@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class WebClientIT {
+public class TestControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,14 +30,16 @@ public class WebClientIT {
     @Test
     void shouldGetPostTestReturnAPost() throws Exception {
         int postId = 1;
-        String titleResponse = "sunt aut facere repellat provident occaecati excepturi optio reprehenderit";
+        String titleResponse = "mock-title";
+        String bodyResponse = "mock-body";
         ResultActions result = mockMvc.perform(get("/api/v1/test/post")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .param("number", String.valueOf(postId)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value(titleResponse));
+                .andExpect(jsonPath("$.title").value(titleResponse))
+                .andExpect(jsonPath("$.body").value(bodyResponse));
 
         result.andExpect(status().isOk());
         result.andDo(print());
