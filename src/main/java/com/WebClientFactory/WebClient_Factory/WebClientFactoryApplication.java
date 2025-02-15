@@ -5,9 +5,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class WebClientFactoryApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(WebClientFactoryApplication.class, args);
-	}
-
+	public static void main(String[] args) {SpringApplication.run(WebClientFactoryApplication.class, args);}
 }

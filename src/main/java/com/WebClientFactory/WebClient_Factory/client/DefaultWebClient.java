@@ -9,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 public class DefaultWebClient<Response> implements WebClient<Response> {
 
@@ -21,14 +24,15 @@ public class DefaultWebClient<Response> implements WebClient<Response> {
     @Value("${provider.token}")
     private String token;
 
-    public DefaultWebClient(CircuitBreaker circuitBreaker, String baseUrl) {
+    public DefaultWebClient(CircuitBreaker circuitBreaker,
+                            String baseUrl) {
         this.circuitBreaker = circuitBreaker;
         this.baseUrl = baseUrl;
     }
 
     @PostConstruct
     public void init() {
-        if (baseUrl == null) {
+        if (baseUrl == null || baseUrl.isEmpty()) {
             throw new BaseUrlNullException();
         }
         webClient = getWebClient();
@@ -83,8 +87,23 @@ public class DefaultWebClient<Response> implements WebClient<Response> {
         return org.springframework.web.reactive.function.client.WebClient
                 .builder()
                 .baseUrl(baseUrl)
+                .filter(logFilter())
                 .defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader("Authorization", "Bearer " + token)
                 .build();
+    }
+
+    private ExchangeFilterFunction logFilter() {
+        return (clientRequest, next) -> {
+            logger.info("External Request to {}", clientRequest.url());
+            return next.exchange(clientRequest);
+        };
+    }
+
+    private ExchangeFilterFunction responseFilter() {
+        return (clientRequest, next) -> {
+            logger.info("External Response body : {}", clientRequest.body());
+            return next.exchange(clientRequest);
+        };
     }
 }

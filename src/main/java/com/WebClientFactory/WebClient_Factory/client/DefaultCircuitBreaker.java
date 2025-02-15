@@ -16,7 +16,7 @@ public class DefaultCircuitBreaker implements CircuitBreaker {
     @Value("${circuitBreaker.failureCount}")
     private Integer failureCount;
     private static final Logger logger = LoggerFactory.getLogger(DefaultCircuitBreaker.class);
-    private final Map<String, com.WebClientFactory.WebClient_Factory.dto.CircuitBreakerState> requestHistory;
+    private final Map<String, CircuitBreakerState> requestHistory;
 
     public DefaultCircuitBreaker() {
         this.requestHistory = new HashMap<>();

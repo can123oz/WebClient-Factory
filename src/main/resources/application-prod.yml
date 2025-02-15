@@ -1,6 +1,5 @@
 integration:
   enabled: true
 
-
 # TODO run like this in the pipeline for production
 # docker run -e "SPRING_PROFILES_ACTIVE=prod" -d -p 8080:8080 --name <container-name> <image-name>

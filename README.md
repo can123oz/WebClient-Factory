@@ -23,6 +23,20 @@ Before you begin, ensure you have met the following requirements:
 
 - [Docker](https://www.docker.com/) installed and running
 
+### Running Maven Test Profiles
+
+To execute specific test profiles defined in your Maven `pom.xml`, you can use the `-P` option with the `mvn test` command. For example, if you have two profiles—`unit-test` and `integration-test`—configured for running unit and integration tests respectively, you can run them as follows:
+
+- **Run only the `unit-test` profile**:
+  ```bash
+  mvn test -Punit-test
+  ``` 
+
+- **Run only the `integration-test` profile**:
+  ```bash
+  mvn test -Pintegration-test
+  ``` 
+  
 
 
 ### Installation
